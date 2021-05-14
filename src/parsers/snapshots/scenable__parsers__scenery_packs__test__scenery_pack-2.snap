@@ -1,0 +1,9 @@
+---
+source: src/parsers/scenery_packs.rs
+expression: disabled_pack
+
+---
+{
+  "enabled": false,
+  "path": "Custom Scenery/A New Zealand NZMC Mount Cook/"
+}

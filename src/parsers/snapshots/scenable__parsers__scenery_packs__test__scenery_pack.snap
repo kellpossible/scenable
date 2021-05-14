@@ -1,0 +1,9 @@
+---
+source: src/parsers/scenery_packs.rs
+expression: enabled_pack
+
+---
+{
+  "enabled": true,
+  "path": "Custom Scenery/-Canberra_Beacons/"
+}

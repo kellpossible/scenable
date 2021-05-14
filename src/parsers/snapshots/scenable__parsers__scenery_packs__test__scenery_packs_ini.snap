@@ -1,0 +1,98 @@
+---
+source: src/parsers/scenery_packs.rs
+expression: scenery_packs_ini(&ini_file).unwrap().1
+
+---
+{
+  "version": 1000,
+  "scenery_packs": [
+    {
+      "enabled": false,
+      "path": "Custom Scenery/A New Zealand NZMC Mount Cook/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/-Canberra_Beacons/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/Star Atlas_YLHI_Lord Howe Island/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/AussiePak9/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/VOZ/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/UHWW/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/NZCH Christchurch International Airport (ISDG)/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/Aerosoft - EDDF Frankfurt/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/Aerosoft - LPFR Faro/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/DD UUEE Moscow Sheremetyevo XP V2 Documents/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/AusWaves/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/BS2001 Object Library/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/The_Handy_Objects_Library"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/3D_people_library/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/X-Plane Landmarks - Las Vegas/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/X-Plane Landmarks - London/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/X-Plane Landmarks - New York/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/X-Plane Landmarks - Sydney/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/X-Plane Landmarks - Washington DC/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/AustraliaPro 2.03 (chrisk and cole)/"
+    },
+    {
+      "enabled": true,
+      "path": "Custom Scenery/Airport Environment HD/"
+    },
+    {
+      "enabled": false,
+      "path": "Custom Scenery/ZZZ DD Z Moscow City XP Terrain/"
+    }
+  ]
+}
