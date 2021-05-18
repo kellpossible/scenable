@@ -1,8 +1,10 @@
 mod app;
 mod i18n;
 mod parsers;
+mod settings;
+mod view;
 
-use iced::{Application, Settings};
+use app::ScenableApp;
 use tracing_subscriber::EnvFilter;
 
 use std::convert::TryFrom;
@@ -34,7 +36,7 @@ fn main() -> eyre::Result<()> {
     setup_reporting();
     let _i18n_guard = setup_i18n()?;
 
-    app::ScenableApp::run(Settings::default())?;
-
-    Ok(())
+    let native_options = epi::NativeOptions::default();
+    let app = Box::new(ScenableApp::default());
+    egui_glium::run(app, native_options);
 }

@@ -1,7 +1,9 @@
 use std::{
+    os::unix::prelude::OsStrExt,
     path::{Path, PathBuf},
 };
 
+use eyre::Context;
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, take_while},
@@ -11,6 +13,8 @@ use nom::{
     IResult,
 };
 use serde::Serialize;
+
+use super::inifile::ToIniFile;
 
 fn version_number(input: &str) -> IResult<&str, u64> {
     map_res(take_while(char::is_numeric), |s: &str| s.parse::<u64>())(input)
@@ -25,10 +29,31 @@ fn version(input: &str) -> IResult<&str, u64> {
     Ok((input, version_number))
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct SceneryPack {
     pub enabled: bool,
     pub path: PathBuf,
+}
+
+impl ToIniFile for SceneryPack {
+    type Error = eyre::Error;
+
+    fn write_ini(&self, out: &mut impl std::io::Write) -> Result<(), Self::Error> {
+        match self.enabled {
+            true => {
+                out.write("SCENERY_PACK".as_bytes())?;
+            }
+            false => {
+                out.write("SCENERY_PACK_DISABLED".as_bytes())?;
+            }
+        }
+
+        out.write(" ".as_bytes())?;
+        out.write(self.path.as_os_str().as_bytes())
+            .wrap_err_with(|| eyre::eyre!("Unable to write scenery pack path: {:?}", self.path))?;
+
+        Ok(())
+    }
 }
 
 fn scenery_pack_enabled(input: &str) -> IResult<&str, bool> {
@@ -73,13 +98,33 @@ fn scenery_pack_or_newline(input: &str) -> IResult<&str, Option<SceneryPack>> {
     ))(input)
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct SceneryPacksIni {
     pub version: u64,
     pub scenery_packs: Vec<SceneryPack>,
 }
 
-fn scenery_packs_ini(input: &str) -> IResult<&str, SceneryPacksIni> {
+impl ToIniFile for SceneryPacksIni {
+    type Error = eyre::Error;
+
+    fn write_ini(&self, out: &mut impl std::io::Write) -> Result<(), Self::Error> {
+        out.write("I\n".as_bytes())?;
+
+        out.write(self.version.to_string().as_bytes())?;
+        out.write(" Version\n".as_bytes())?;
+
+        out.write("SCENERY\n\n".as_bytes())?;
+
+        for pack in &self.scenery_packs {
+            pack.write_ini(out)?;
+            out.write("\n".as_bytes())?;
+        }
+
+        Ok(())
+    }
+}
+
+pub fn scenery_packs_ini(input: &str) -> IResult<&str, SceneryPacksIni> {
     let (input, _) = tag("I")(input)?;
     let (input, _) = newline(input)?;
     let (input, version_number) = version(input)?;
@@ -101,7 +146,10 @@ fn scenery_packs_ini(input: &str) -> IResult<&str, SceneryPacksIni> {
 mod test {
     use std::path::Path;
 
-    use super::{scenery_pack, scenery_pack_enabled, scenery_packs_ini, until_newline, version};
+    use super::{
+        scenery_pack, scenery_pack_enabled, scenery_packs_ini, until_newline, version, SceneryPack,
+        SceneryPacksIni, ToIniFile,
+    };
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -143,5 +191,38 @@ mod test {
                 .unwrap()
                 .1;
         insta::assert_json_snapshot!(disabled_pack);
+    }
+
+    #[test]
+    fn test_to_ini() {
+        let pack1 = SceneryPack {
+            enabled: true,
+            path: "Example 1".into(),
+        };
+
+        let pack2 = SceneryPack {
+            enabled: false,
+            path: "Example 2".into(),
+        };
+
+        let scenery_packs_ini = SceneryPacksIni {
+            version: 1000,
+            scenery_packs: vec![pack1, pack2],
+        };
+
+        let mut buffer: Vec<u8> = Vec::new();
+
+        scenery_packs_ini.write_ini(&mut buffer).unwrap();
+
+        let ini_file = std::str::from_utf8(&buffer).unwrap();
+
+        let expected = r#"I
+1000 Version
+SCENERY
+
+SCENERY_PACK Example 1
+SCENERY_PACK_DISABLED Example 2
+"#;
+        assert_eq!(expected, ini_file)
     }
 }

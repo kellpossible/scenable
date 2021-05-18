@@ -7,18 +7,24 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = "0.3"
-eyre = "0.6"
+directories = "3.0"
 color-eyre = "0.5"
-tracing = "0.1"
-tracing-subscriber = "0.2"
+crossbeam-channel = "0.5"
+egui_glium = "0.12"
+egui = "0.12"
+epi = "0.12"
+eyre = "0.6"
 i18n-embed = { version = "0.12", features = ["fluent-system", "desktop-requester"] }
 i18n-embed-fl = "0.5"
-rust-embed = "5.9"
+im-native-dialog = "0.1"
 lazy_static = "1.4"
-nom = "6"
+nom = "6.1"
+ron = "0.6"
+rust-embed = "5.9"
 serde = "1.0"
 serde_derive = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.2"
 
 [dev-dependencies]
 pretty_assertions = "0.7"

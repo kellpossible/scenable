@@ -10,8 +10,9 @@ The purpose of this tool is to make the management of enabling/disabling custom 
 
 ## Roadmap
 
--[ ] Create GUI to enable/disable scenery packs.
--[ ] Implement a dsf parser (perhaps wrap <https://github.com/X-Plane/xptools/tree/master/src/DSF>, or just implement the required subset of the [DSF specification](https://developer.x-plane.com/article/dsf-file-format-specification/) in pure Rust).
+-[ ] Create GUI to manually enable/disable scenery packs.
+-[ ] Detection of new scenery packs, and removed scenery packs.
 -[ ] Parse scenery library txt files.
+-[ ] Implement a dsf parser (perhaps wrap <https://github.com/X-Plane/xptools/tree/master/src/DSF>, or just implement the required subset of the [DSF specification](https://developer.x-plane.com/article/dsf-file-format-specification/) in pure Rust).
 -[ ] Scan DSF files (including unzipping using `rust-lzma`) to find references to scenery library objects.
 -[ ] Automatic enable/disable of library scenery packs based on calculated dependencies.

@@ -1,71 +1,63 @@
-use crate::fl;
-use iced::{
-    text_input::{self, TextInput},
-    Application, Checkbox, Column, Command, HorizontalAlignment, Length, Row, Text,
-};
+use std::path::PathBuf;
 
-#[derive(Debug, Clone, Copy)]
-pub enum AppMsg {
-    Quit,
-    Checked(bool),
-    Nothing,
+use crate::{
+    fl,
+    settings::Settings,
+    view::{
+        page::{
+            setup::{SetupPage, SetupPageResult},
+            Page,
+        },
+        View,
+    },
+};
+use epi::App;
+
+enum MainPage {
+    Setup(SetupPage),
+    SceneryPacks,
 }
 
 pub struct ScenableApp {
-    checked: bool,
-    directory_input_state: text_input::State,
+    name: String,
+    settings: Settings,
+    page: MainPage,
 }
 
-impl Application for ScenableApp {
-    type Executor = iced::executor::Default;
-    type Message = AppMsg;
-    type Flags = ();
-
-    fn new(flags: Self::Flags) -> (Self, iced::Command<Self::Message>) {
-        let app = ScenableApp {
-            checked: false,
-            directory_input_state: Default::default(),
+impl Default for ScenableApp {
+    fn default() -> Self {
+        let (page, settings) = match Settings::from_settings_file() {
+            Ok(None) => (MainPage::Setup(SetupPage::default()), Default::default()),
+            Ok(Some(settings)) => (MainPage::SceneryPacks, settings),
+            Err(error) => {
+                tracing::error!("Error reading settings from settings file: {}", error);
+                (MainPage::Setup(SetupPage::default()), Default::default())
+            }
         };
-        (app, Command::none())
-    }
 
-    fn title(&self) -> String {
-        fl!("window-title")
+        Self {
+            name: fl!("window-title"),
+            settings,
+            page,
+        }
     }
+}
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-        clipboard: &mut iced::Clipboard,
-    ) -> iced::Command<Self::Message> {
-        match message {
-            AppMsg::Quit => {
-                tracing::info!("Quitting");
-                Command::none()
+impl App for ScenableApp {
+    fn update(&mut self, ctx: &egui::CtxRef, _frame: &mut epi::Frame<'_>) {
+        match &mut self.page {
+            MainPage::Setup(setup_page) => {
+                if let SetupPageResult::Continue(parameters) = setup_page.show(ctx).inner {
+                    self.settings.setup(parameters);
+                    self.settings.save().unwrap();
+                    self.page = MainPage::SceneryPacks;
+                }
             }
-            AppMsg::Checked(checked) => {
-                self.checked = !self.checked;
-                tracing::info!("Checked: {}", checked);
-                Command::none()
-            }
-            AppMsg::Nothing => Command::none(),
+            MainPage::SceneryPacks => {}
         }
     }
 
-    fn view(&mut self) -> iced::Element<'_, Self::Message> {
-        let checkbox = Checkbox::new(
-            self.checked,
-            fl!("scenery-enabled-checkbox-label"),
-            AppMsg::Checked,
-        );
-        let directory = TextInput::new(&mut self.directory_input_state, "", "example_dir", |_| {
-            AppMsg::Nothing
-        });
-
-        let row = Row::new().push(checkbox).push(directory);
-
-        let content = Column::new().push(row);
-
-        content.into()
+    fn name(&self) -> &str {
+        &self.name
     }
 }
