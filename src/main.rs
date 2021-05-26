@@ -1,17 +1,25 @@
 mod app;
+mod history;
 mod i18n;
 mod parsers;
 mod settings;
+mod state;
 mod view;
 
 use app::ScenableApp;
+use tracing_log::LogTracer;
 use tracing_subscriber::EnvFilter;
 
 use std::convert::TryFrom;
 
 use crate::i18n::setup_i18n;
 
+/// Set up logging and error reporting
 fn setup_reporting() {
+    LogTracer::builder()
+        .init()
+        .expect("Unable to setup tracing-log");
+
     let env_filter: EnvFilter = match std::env::var("RUST_LOG") {
         Ok(env) => match EnvFilter::try_from(env) {
             Ok(filter) => Some(filter),

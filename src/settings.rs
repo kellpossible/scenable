@@ -29,7 +29,7 @@ impl Settings {
             tracing::debug!("settings file {:?} does not yet exist", &settings_path);
             return Ok(None);
         } else {
-            tracing::debug!("reading settings from {:?}", &settings_path);
+            tracing::debug!("Reading settings from {:?}", &settings_path);
             let file = std::fs::File::open(&settings_path).wrap_err_with(|| {
                 eyre::eyre!("Unable to open settings file {:?}", &settings_path)
             })?;
@@ -45,7 +45,7 @@ impl Settings {
 
     pub fn save(&self) -> eyre::Result<()> {
         let settings_path = Self::settings_path()?;
-        tracing::debug!("writing settings to {:?}", &settings_path);
+        tracing::debug!("Writing settings to {:?}", &settings_path);
         let parent = settings_path.parent().ok_or_else(|| {
             eyre::eyre!(
                 "Settings file does not have a parent directory: {:?}",

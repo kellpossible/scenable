@@ -29,7 +29,7 @@ fn version(input: &str) -> IResult<&str, u64> {
     Ok((input, version_number))
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct SceneryPack {
     pub enabled: bool,
     pub path: PathBuf,
