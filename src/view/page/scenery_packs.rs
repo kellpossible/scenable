@@ -1,40 +1,33 @@
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
+use super::Page;
+use crate::{
+    fl,
+    i18n::LocalizedString,
+    parsers::{
+        inifile::ToIniFile,
+        scenery_packs::{scenery_packs_ini, SceneryPacksIni},
+    },
+    state::{
+        ActionHistory, ScenableAction, ScenableStateRef, UpdateSceneryPack, UpdateSceneryPacks,
+    },
+};
 
 use egui::{Button, ScrollArea};
 
-use crate::parsers::inifile::ToIniFile;
-use crate::parsers::scenery_packs::{scenery_packs_ini, SceneryPacksIni};
-use crate::state::ActionHistory;
-use crate::state::UpdateSceneryPack;
-use crate::state::UpdateSceneryPacks;
-use crate::state::{ScenableAction, ScenableStateRef};
-
-use super::Page;
+use std::path::{Path, PathBuf};
 
 pub struct SceneryPacksPage {
     state: ScenableStateRef,
-    file_state_id: u64,
 }
 
 impl SceneryPacksPage {
     pub fn new(state: ScenableStateRef) -> Self {
-        let mut new_self = Self {
-            state,
-            file_state_id: 0,
-        };
+        let mut new_self = Self { state };
 
         if let Err(error) = new_self.read_scenery_packs(true) {
             tracing::error!("Error while reading scenery packs: {}", error);
         }
 
         new_self
-    }
-
-    fn current_history_id(&self) -> u64 {
-        let state = self.state.state();
-        let (current_history, _) = state.scenery_packs_history.peek_current();
-        current_history.item.id
     }
 
     fn scenery_packs_ini_path(&self) -> eyre::Result<PathBuf> {
@@ -60,7 +53,8 @@ impl SceneryPacksPage {
         };
         write_scenery_packs_ini(&ini, ini_path)?;
 
-        self.file_state_id = self.current_history_id();
+        self.state
+            .dispatch(ScenableAction::UpdateSceneryPacksSyncStatus);
 
         Ok(())
     }
@@ -73,11 +67,12 @@ impl SceneryPacksPage {
         self.state
             .dispatch(ScenableAction::UpdateSceneryPacks(UpdateSceneryPacks {
                 scenery_packs: im_rc::Vector::from(ini.scenery_packs),
-                history: ActionHistory::Some(Rc::new("Read scenery_packs.ini")),
+                history: ActionHistory::Some(LocalizedString::from("Read scenery_packs.ini")),
                 reset_history,
             }));
 
-        self.file_state_id = self.current_history_id();
+        self.state
+            .dispatch(ScenableAction::UpdateSceneryPacksSyncStatus);
 
         Ok(())
     }
@@ -97,9 +92,10 @@ impl Page for SceneryPacksPage {
                         let response = if let Some(_) = prev_history {
                             let (current_history, _) =
                                 current_state.scenery_packs_history.peek_current();
-                            response
-                                // TODO: localize
-                                .on_hover_text(format!("Undo: {}", &current_history.label))
+                            response.on_hover_text(fl!(
+                                "undo-hover-text",
+                                operation = current_history.label.to_string()
+                            ))
                         } else {
                             response
                         };
@@ -110,9 +106,10 @@ impl Page for SceneryPacksPage {
                         let next_history = current_state.scenery_packs_history.peek_next();
                         let response = ui.add(Button::new("⮫").enabled(next_history.is_some()));
                         let response = if let Some((next_history, _)) = next_history {
-                            response
-                                // TODO: localize
-                                .on_hover_text(format!("Redo: {}", &next_history.label))
+                            response.on_hover_text(fl!(
+                                "redo-hover-text",
+                                operation = next_history.label.to_string()
+                            ))
                         } else {
                             response
                         };
@@ -120,13 +117,12 @@ impl Page for SceneryPacksPage {
                             self.state.dispatch(ScenableAction::RedoSceneryPacks);
                         }
 
-                        // TODO: localize
                         let response = ui
                             .add(
                                 Button::new("💾")
-                                    .enabled(self.file_state_id != self.current_history_id()),
+                                    .enabled(!current_state.scenery_packs_synchronized()),
                             )
-                            .on_hover_text("Save changes");
+                            .on_hover_text(fl!("save-hover-text"));
 
                         if response.clicked() {
                             if let Err(error) = self.save_scenery_packs() {
@@ -145,17 +141,21 @@ impl Page for SceneryPacksPage {
                                     let mut new_scenery_pack = scenery_pack.clone();
                                     new_scenery_pack.enabled = enabled;
 
+                                    let path_debug = format!("{:?}", scenery_pack.path);
                                     let history_label = if new_scenery_pack.enabled {
-                                        // TODO: localize
-                                        Rc::new(format!(
-                                            "Scenery pack {:?} enabled",
-                                            scenery_pack.path
-                                        ))
+                                        LocalizedString::new(move || {
+                                            fl!(
+                                                "scenery-pack-enabled-operation",
+                                                path = path_debug.clone()
+                                            )
+                                        })
                                     } else {
-                                        Rc::new(format!(
-                                            "Scenery pack {:?} disabled",
-                                            scenery_pack.path
-                                        ))
+                                        LocalizedString::new(move || {
+                                            fl!(
+                                                "scenery-pack-enabled-operation",
+                                                path = path_debug.clone()
+                                            )
+                                        })
                                     };
 
                                     self.state.dispatch(ScenableAction::UpdateSceneryPack(

@@ -4,13 +4,10 @@ use crate::{
     fl,
     settings::Settings,
     state::{ScenableAction, ScenableReducer, ScenableState, ScenableStateRef},
-    view::{
-        page::{
-            scenery_packs::SceneryPacksPage,
-            setup::{SetupPage, SetupPageResult},
-            Page,
-        },
-        View,
+    view::page::{
+        scenery_packs::SceneryPacksPage,
+        setup::{SetupPage, SetupPageResult},
+        Page,
     },
 };
 use epi::App;

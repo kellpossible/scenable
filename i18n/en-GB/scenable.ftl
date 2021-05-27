@@ -1,10 +1,14 @@
 window-title = Scenable
 scenery-enabled-checkbox-label = Enabled
 browse-directory-button-title = Browse
-error-unable-to-read-ini-file = Unable to read scenery_packs.ini file because: {$reason}
 path-not-exist-error = The specified path does not exist
 path-not-dir-error = The specified path is not a directory
 path-not-xplane-dir = The specified path is not the X-Plane directory
 setup-title = Setup
 specify-xplane-dir-message = Please specify the path to the X-Plane directory
 xplane-dir-label = X-Plane Directory
+redo-hover-text = Redo: {$operation}
+undo-hover-text = Undo: {$operation}
+save-hover-text = Save changes
+scenery-pack-disabled-operation = Scenery pack {$path} disabled
+scenery-pack-enabled-operation = Scenery pack {$path} enabled

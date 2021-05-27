@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{rc::Rc, sync::Arc};
 
 use i18n_embed::{
     fluent::{fluent_language_loader, FluentLanguageLoader},
@@ -44,3 +44,31 @@ pub fn setup_i18n<'r>() -> eyre::Result<I18nGuard<'r>> {
         _requester: language_requester,
     })
 }
+
+#[derive(Clone)]
+pub struct LocalizedString(Rc<dyn Fn() -> String>);
+
+impl LocalizedString {
+    pub fn new<C: Fn() -> String + 'static>(closure: C) -> Self {
+        Self(Rc::new(closure))
+    }
+}
+
+impl std::fmt::Display for LocalizedString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let function = &*self.0;
+        function().fmt(f)
+    }
+}
+
+impl<S: AsRef<str> + 'static> From<S> for LocalizedString {
+    fn from(s: S) -> Self {
+        Self::new(move || s.as_ref().to_string())
+    }
+}
+
+// impl<D: std::fmt::Display, C: Fn() -> D> std::fmt::Display for LocalizedFmt<D, C> {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         self.0().fmt(f)
+//     }
+// }

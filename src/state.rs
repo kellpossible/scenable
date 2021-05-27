@@ -2,19 +2,22 @@ use std::rc::Rc;
 
 use reactive_state::{Reducer, ReducerResult, StoreRef};
 
-use crate::{history::History, parsers::scenery_packs::SceneryPack, settings::Settings};
+use crate::{
+    history::History, i18n::LocalizedString, parsers::scenery_packs::SceneryPack,
+    settings::Settings,
+};
 
 #[derive(Clone)]
 pub struct ActionHistoryItem<T> {
-    pub label: Rc<dyn std::fmt::Display>,
+    pub label: LocalizedString,
     pub item: T,
 }
 
 impl<T: Default> ActionHistoryItem<T> {
     fn with_empty_label(item: T) -> Self {
         Self {
-            label: Rc::new(""),
-            item: Default::default(),
+            label: LocalizedString::new(|| String::new()),
+            item,
         }
     }
 }
@@ -53,6 +56,9 @@ pub struct ScenableState {
     pub settings: Rc<Settings>,
     pub scenery_packs: im_rc::Vector<SceneryPack>,
     pub scenery_packs_history: History<ActionHistoryItem<SceneryPacksHistoryItem>>,
+    /// The id of the [SceneryPacksHistoryItem] which corresponds to
+    /// the currently saved state of the `scenery_packs.ini` file.
+    pub scenery_packs_saved_history_id: u64,
 }
 
 impl std::fmt::Debug for ScenableState {
@@ -62,19 +68,27 @@ impl std::fmt::Debug for ScenableState {
     }
 }
 
-impl ScenableState {}
+impl ScenableState {
+    fn senery_packs_current_history_id(&self) -> u64 {
+        let (current_history, _) = self.scenery_packs_history.peek_current();
+        current_history.item.id
+    }
 
-pub type HistoryLabel = Rc<dyn std::fmt::Display>;
+    /// Returns whether or not the state of scenery packs is synchronized with what is on disk.
+    pub fn scenery_packs_synchronized(&self) -> bool {
+        self.scenery_packs_saved_history_id == self.senery_packs_current_history_id()
+    }
+}
 
 pub enum ActionHistory {
-    Some(HistoryLabel),
+    Some(LocalizedString),
     None,
 }
 
 impl ActionHistory {
     fn format_label(&self) -> Option<String> {
         match self {
-            ActionHistory::Some(label) => Some(format!("{}", label)),
+            ActionHistory::Some(label) => Some(label.to_string()),
             ActionHistory::None => None,
         }
     }
@@ -89,6 +103,7 @@ impl std::fmt::Debug for ActionHistory {
     }
 }
 
+/// Overwrite/update the state of all scenery packs in memory.
 #[derive(Debug)]
 pub struct UpdateSceneryPacks {
     pub scenery_packs: im_rc::Vector<SceneryPack>,
@@ -96,6 +111,7 @@ pub struct UpdateSceneryPacks {
     pub reset_history: bool,
 }
 
+/// Edit a single scenery pack.
 #[derive(Debug)]
 pub struct UpdateSceneryPack {
     pub index: usize,
@@ -104,11 +120,19 @@ pub struct UpdateSceneryPack {
 }
 
 pub enum ScenableAction {
+    /// Update the application [Settings].
     UpdateSettings(Settings),
+    /// See [UpdateSceneryPacks].
     UpdateSceneryPacks(UpdateSceneryPacks),
+    /// See [UpdateSceneryPack].
     UpdateSceneryPack(UpdateSceneryPack),
+    /// Undo previous change to scenery packs.
     UndoSceneryPacks,
+    /// Redo previous change to scenery packs.
     RedoSceneryPacks,
+    /// Notifies that the state of scenery packs has been read from or
+    /// written to disk.
+    UpdateSceneryPacksSyncStatus,
 }
 
 impl std::fmt::Debug for ScenableAction {
@@ -123,6 +147,9 @@ impl std::fmt::Debug for ScenableAction {
                 .finish(),
             ScenableAction::UndoSceneryPacks => f.debug_tuple("UndoSceneryPacks").finish(),
             ScenableAction::RedoSceneryPacks => f.debug_tuple("RedoSceneryPacks").finish(),
+            ScenableAction::UpdateSceneryPacksSyncStatus => {
+                f.debug_tuple("UpdateSceneryPacksSyncStatus").finish()
+            }
         }
     }
 }
@@ -215,6 +242,15 @@ impl Reducer<ScenableState, ScenableAction, (), ()> for ScenableReducer {
                 } else {
                     tracing::warn!("Can't redo, history is either empty or this is the first item");
                 }
+                ReducerResult {
+                    state: Rc::new(new_state),
+                    events: vec![],
+                    effects: vec![],
+                }
+            }
+            ScenableAction::UpdateSceneryPacksSyncStatus => {
+                new_state.scenery_packs_saved_history_id =
+                    new_state.senery_packs_current_history_id();
                 ReducerResult {
                     state: Rc::new(new_state),
                     events: vec![],
