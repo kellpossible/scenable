@@ -14,14 +14,14 @@ use super::Page;
 
 pub struct SceneryPacksPage {
     state: ScenableStateRef,
-    prev_saved_id: u64,
+    file_state_id: u64,
 }
 
 impl SceneryPacksPage {
     pub fn new(state: ScenableStateRef) -> Self {
         let mut new_self = Self {
             state,
-            prev_saved_id: 0,
+            file_state_id: 0,
         };
 
         if let Err(error) = new_self.read_scenery_packs(true) {
@@ -47,9 +47,22 @@ impl SceneryPacksPage {
     }
 
     fn save_scenery_packs(&mut self) -> eyre::Result<()> {
-        tracing::warn!("Not yet implemented, save scenery_packs.ini");
+        let ini_path = self.scenery_packs_ini_path()?;
+        let ini = SceneryPacksIni {
+            version: 1000,
+            scenery_packs: self
+                .state
+                .state()
+                .scenery_packs
+                .clone()
+                .into_iter()
+                .collect(),
+        };
+        write_scenery_packs_ini(&ini, ini_path)?;
+
+        self.file_state_id = self.current_history_id();
+
         Ok(())
-        //write_scenery_packs_ini()
     }
 
     /// Read scenery packs ini file, and replace what is the current
@@ -64,7 +77,7 @@ impl SceneryPacksPage {
                 reset_history,
             }));
 
-        self.prev_saved_id = self.current_history_id();
+        self.file_state_id = self.current_history_id();
 
         Ok(())
     }
@@ -108,10 +121,12 @@ impl Page for SceneryPacksPage {
                         }
 
                         // TODO: localize
-                        let response = ui.add(
-                            Button::new("Save")
-                                .enabled(self.prev_saved_id != self.current_history_id()),
-                        );
+                        let response = ui
+                            .add(
+                                Button::new("💾")
+                                    .enabled(self.file_state_id != self.current_history_id()),
+                            )
+                            .on_hover_text("Save changes");
 
                         if response.clicked() {
                             if let Err(error) = self.save_scenery_packs() {
@@ -171,7 +186,10 @@ fn read_scenery_packs_ini(ini_path: impl AsRef<Path>) -> eyre::Result<SceneryPac
 
 fn write_scenery_packs_ini(ini: &SceneryPacksIni, ini_path: impl AsRef<Path>) -> eyre::Result<()> {
     tracing::info!("Writing scenery packs to {:?}", ini_path.as_ref());
-    let mut file = std::fs::OpenOptions::new().write(true).open(ini_path)?;
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(ini_path)?;
     ini.write_ini(&mut file)?;
     Ok(())
 }
