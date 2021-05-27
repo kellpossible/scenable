@@ -10,7 +10,10 @@ The purpose of this tool is to make the management of enabling/disabling custom 
 
 ## Roadmap
 
+Core features:
+
 - [x] ~Create GUI to manually enable/disable scenery packs.~
+- [ ] Capability to re-order scenery packs.
 - [ ] Preset creation, selection, updating and saving.
 - [ ] Indicate differences between current state and saved state.
 - [ ] Detection of new scenery packs, and removed scenery packs.
@@ -19,3 +22,9 @@ The purpose of this tool is to make the management of enabling/disabling custom 
 - [ ] Class sceneries as libraries, textures, airports, etc (apply categories and show in UI)
 - [ ] Scan DSF files (including unzipping using `rust-lzma`) to find references to scenery library objects.
 - [ ] Automatic enable/disable of library scenery packs based on calculated dependencies.
+
+Nice to have:
+
+- [ ] Show coverage map.
+- [ ] Parse x-plane navigation database.
+- [ ] Enter route, automatically only enable scenery along route.
