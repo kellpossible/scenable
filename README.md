@@ -19,7 +19,7 @@ cargo run --release
 It's also possible to install the binary to your system using:
 
 ```
-cargo install https://github.com/kellpossible/scenable
+cargo install --git https://github.com/kellpossible/scenable
 ```
 
 And then run using the `scenable` command.
