@@ -8,6 +8,22 @@ Currently X-Plane appears to waste a lot of memory loading scenery and scenery l
 
 The purpose of this tool is to make the management of enabling/disabling custom scenery based on the area that you want to fly in as painless as possible. When disabling scenery with this tool, it will detect whether scenery libraries are currently un-used and will disable them automatically, and the same thing in reverse, when enabling a scenery pack that uses a disabled library, it will also enable the library as required.
 
+## Installation
+
+You can build `scenable` application with the [rust compiler](https://www.rust-lang.org/) and run it with the following command:
+
+```
+cargo run --release
+```
+
+It's also possible to install the binary to your system using:
+
+```
+cargo install https://github.com/kellpossible/scenable
+```
+
+And then run using the `scenable` command.
+
 ## Roadmap
 
 Core features:
