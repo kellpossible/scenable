@@ -83,7 +83,9 @@ impl Page for SceneryPacksPage {
     fn show(&mut self, ctx: &egui::CtxRef, _frame: &epi::Frame) -> Self::Response {
         let current_state = self.state.state();
         egui::CentralPanel::default().show(ctx, |ui| {
-            let scroll_area = ScrollArea::vertical().auto_shrink([false, false]).max_width(f32::INFINITY);
+            let scroll_area = ScrollArea::vertical()
+                .auto_shrink([false, false])
+                .max_width(f32::INFINITY);
             scroll_area.show(ui, |ui| {
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
@@ -120,7 +122,7 @@ impl Page for SceneryPacksPage {
                         let response = ui
                             .add_enabled(
                                 !current_state.scenery_packs_synchronized(),
-                                Button::new("💾")
+                                Button::new("💾"),
                             )
                             .on_hover_text(fl!("save-hover-text"));
 

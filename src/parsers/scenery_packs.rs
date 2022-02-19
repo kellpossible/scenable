@@ -29,7 +29,6 @@ fn version(input: &str) -> IResult<&str, u64> {
     Ok((input, version_number))
 }
 
-
 /// A scenery pack in the x-plane.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct SceneryPack {
