@@ -13,7 +13,8 @@ The purpose of this tool is to make the management of enabling/disabling custom 
 Core features:
 
 - [x] ~Create GUI to manually enable/disable scenery packs.~
-- [ ] Capability to re-order scenery packs.
+- [ ] Scenery pack selection (including multiple selection).
+- [ ] Capability to re-order scenery packs (re-order selected scenery packs using buttons on the top toolbar).
 - [ ] Preset creation, selection, updating and saving.
 - [ ] Indicate differences between current state and saved state.
 - [ ] Detection of new scenery packs, and removed scenery packs.

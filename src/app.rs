@@ -58,7 +58,7 @@ impl Default for ScenableApp {
 }
 
 impl App for ScenableApp {
-    fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+    fn update(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) {
         match &mut self.page {
             ScenablePage::Setup(page) => {
                 if let SetupPageResult::Continue(parameters) = page.show(ctx, frame).inner {

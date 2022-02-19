@@ -29,9 +29,14 @@ fn version(input: &str) -> IResult<&str, u64> {
     Ok((input, version_number))
 }
 
+
+/// A scenery pack in the x-plane.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct SceneryPack {
+    /// Whether or not this scenery pack is enabled.
     pub enabled: bool,
+    /// Path to this scenery pack relative to the x-plane root
+    /// directory.
     pub path: PathBuf,
 }
 

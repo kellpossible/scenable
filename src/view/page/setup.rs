@@ -27,7 +27,7 @@ pub enum SetupPageResult {
 impl View for SetupPage {
     type Response = InnerResponse<SetupPageResult>;
 
-    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut epi::Frame<'_>) -> Self::Response {
+    fn ui(&mut self, ui: &mut egui::Ui, frame: &epi::Frame) -> Self::Response {
         if let Some(result) = self.xplane_dir_dialog.check() {
             match result {
                 Ok(Some(path)) => self.xplane_dir = path,
@@ -46,9 +46,9 @@ impl View for SetupPage {
                 // make the text edit expand to fill available space (with browse button on right)
                 ui.with_layout(egui::Layout::right_to_left(), |ui| {
                     if ui.button(fl!("browse-directory-button-title")).clicked() {
-                        let repaint_signal = frame.repaint_signal();
+                        let dialog_frame = frame.clone();
                         self.xplane_dir_dialog
-                            .with_callback(move |_| repaint_signal.request_repaint())
+                            .with_callback(move |_| dialog_frame.request_repaint())
                             .open_single_dir(Some(self.xplane_dir.clone()))
                             .expect("Unable to open xplane_path dialog");
                     }
@@ -95,7 +95,7 @@ impl View for SetupPage {
 
 impl Page for SetupPage {
     type Response = InnerResponse<SetupPageResult>;
-    fn show(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) -> Self::Response {
+    fn show(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) -> Self::Response {
         egui::CentralPanel::default()
             .show(ctx, |ui| self.ui(ui, frame))
             .inner

@@ -46,5 +46,5 @@ fn main() -> eyre::Result<()> {
 
     let native_options = epi::NativeOptions::default();
     let app = Box::new(ScenableApp::default());
-    egui_glium::run(app, native_options);
+    egui_glium::run(app, &native_options);
 }
