@@ -934,9 +934,9 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "im-native-dialog"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aeb3707e7e33ce52f3f116e81339ec0d776c80f937dab20def88fdca007cf808"
+checksum = "03aa3864d0eda673cf8cb9a1fb7287cc4a7617d5afc5ff23d63aec2bcb36228b"
 dependencies = [
  "crossbeam-channel",
  "log",
@@ -1210,17 +1210,18 @@ dependencies = [
 
 [[package]]
 name = "native-dialog"
-version = "0.5.5"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d689b01017db3e350e0e9798d233cca9ad3bf810e7c02b9b55ec06b9ee7dbd8a"
+checksum = "0ab637f328b31bd0855c43bd38a4a4455e74324d9e74e0aac6a803422f43abc6"
 dependencies = [
+ "block",
  "cocoa",
  "dirs-next",
  "objc",
  "objc-foundation",
  "objc_id",
  "once_cell",
- "raw-window-handle 0.3.3",
+ "raw-window-handle",
  "thiserror",
  "wfd",
  "which",
@@ -1676,15 +1677,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9fcdd2e881d02f1d9390ae47ad8e5696a9e4be7b547a1da2afbc61973217004"
 dependencies = [
  "rand_core 0.5.1",
-]
-
-[[package]]
-name = "raw-window-handle"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a441a7a6c80ad6473bd4b74ec1c9a4c951794285bf941c2126f607c72e48211"
-dependencies = [
- "libc",
 ]
 
 [[package]]
@@ -2597,7 +2589,7 @@ dependencies = [
  "objc",
  "parking_lot 0.11.1",
  "percent-encoding",
- "raw-window-handle 0.4.2",
+ "raw-window-handle",
  "smithay-client-toolkit 0.15.3",
  "wasm-bindgen",
  "wayland-client 0.29.4",
